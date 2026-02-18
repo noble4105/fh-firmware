@@ -40,24 +40,10 @@ int fakeVal(void)
   return fake;
 }
 
-void Init(void)
-{
-  randomInit();
-  VextON();
-  delay(100);
-  srand(time(0));
-
-  display.init();
-  display.clear();
-  display.display();
-  display.setContrast(255);
-  display.screenRotate(ANGLE_90_DEGREE);
-
-}
-
 void setup() {
   VextON();
   delay(100);
+  srand(time(0));
   initDisplay();
 }
 

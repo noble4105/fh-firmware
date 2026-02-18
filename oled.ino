@@ -1,6 +1,4 @@
 #include "HT_SSD1306Wire.h"
-#include "Arduino.h"
-#include "stdbool.h"
 
 static SSD1306Wire  display(0x3c, 500000, SDA_OLED, SCL_OLED, GEOMETRY_128_64, RST_OLED); // addr , freq , i2c group , resolution , rst
 
@@ -8,15 +6,6 @@ const int BAR_HEIGHT = 10;
 const int BAR_WIDTH = 64;
 const int BAR_BUFFER = 2;
 const int STEP = BAR_BUFFER + BAR_HEIGHT;
-
-typedef struct Panel {
-  int x;
-  int y;
-  int height;
-  int width;
-} Panel;
-
-const Panel labelPanel = {0, 110, 18, 64};
 
 void VextON(void) {
   pinMode(Vext,OUTPUT);
@@ -36,28 +25,6 @@ void initDisplay() {
   display.clear();
   display.display();
   display.screenRotate(ANGLE_90_DEGREE);
-}
-
-// testing variables
-int counter = 0;
-int reversed = false;
-//
-
-int getValue() {
-  if ((counter < 100) && !reversed) {
-    counter++;
-  }
-  else if ((counter > 0) && reversed) {
-    counter--;
-  }
-
-  if (counter == 100) {
-    reversed = true;
-  } else if (counter == 0) {
-    reversed = false;
-  }
-
-  return counter;
 }
 
 void drawBars(int val) {
@@ -97,15 +64,4 @@ void drawUI(int val) {
   drawBars(val);
   drawValString(val);
   display.display();
-}
-
-void setup() {
-  VextON();
-  delay(100);
-  initDisplay();
-}
-
-void loop() {
-  drawUI(getValue());
-  delay(100);
 }

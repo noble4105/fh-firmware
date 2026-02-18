@@ -1,5 +1,7 @@
 #include "Arduino.h"
 #include "stdbool.h"
+#include <time.h>
+#include <stdio.h>
 
 typedef struct Panel {
   int x;
@@ -32,6 +34,27 @@ int getValue() {
   return counter;
 }
 
+int fakeVal(void)
+{
+  int fake = 0 + rand()%(118);
+  return fake;
+}
+
+void Init(void)
+{
+  randomInit();
+  VextON();
+  delay(100);
+  srand(time(0));
+
+  display.init();
+  display.clear();
+  display.display();
+  display.setContrast(255);
+  display.screenRotate(ANGLE_90_DEGREE);
+
+}
+
 void setup() {
   VextON();
   delay(100);
@@ -42,3 +65,5 @@ void loop() {
   drawUI(getValue());
   delay(100);
 }
+
+

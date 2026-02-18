@@ -36,7 +36,6 @@ void initDisplay() {
   display.clear();
   display.display();
   display.screenRotate(ANGLE_90_DEGREE);
-  printf("ungabunga");
 }
 
 // testing variables

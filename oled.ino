@@ -65,3 +65,13 @@ void drawUI(int val) {
   drawValString(val);
   display.display();
 }
+
+void drawCircles(int val)
+{
+  display.clear();
+  display.drawCircle( 7, (7+val), 5);
+  display.display();
+  delay(800);
+}
+
+

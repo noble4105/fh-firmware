@@ -44,7 +44,7 @@ bool sleepMode = false;
 int16_t Rssi,rxSize;
 
 
-void setup() {
+void setupRadio() {
     Serial.begin(115200);
     Mcu.begin(HELTEC_BOARD,SLOW_CLK_TPYE);
     txNumber=0;
@@ -70,7 +70,7 @@ void setup() {
 
 
 
-void loop()
+void loopRadio()
 {
   switch(state)
   {
@@ -81,6 +81,7 @@ void loop()
       Serial.printf("\r\nsending packet \"%s\" , length %d\r\n",txpacket, strlen(txpacket));
       Radio.Send( (uint8_t *)txpacket, strlen(txpacket) );
       state=LOWPOWER;
+      drawBars(abs(Rssi));
       break;
     case STATE_RX:
       Serial.println("into RX mode");

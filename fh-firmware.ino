@@ -45,11 +45,11 @@ void setup() {
   delay(100);
   srand(time(0));
   initDisplay();
+  setupRadio();
 }
 
 void loop() {
-  drawUI(getValue());
-  delay(100);
+  loopRadio();
 }
 
 

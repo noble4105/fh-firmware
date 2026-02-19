@@ -66,8 +66,9 @@ void drawUI(int val) {
   display.display();
 }
 
-void drawCircles(int val)
+void drawCircles(int16_t val)
 {
+  // Input range is around 0-117
   display.clear();
   display.drawCircle( 7, (7+val), 5);
   display.display();

@@ -31,6 +31,11 @@ void OnTxDone( void );
 void OnTxTimeout( void );
 void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
 
+int16_t demod(int16_t rssi);
+int16_t scaleSignal(int16_t dist, int8_t range);
+int16_t timeReturn(void);
+int16_t scaleTime(int16_t time, int16_t range);
+
 typedef enum
 {
     LOWPOWER,
@@ -78,10 +83,14 @@ void loopRadio()
       delay(1000);
       txNumber++;
       sprintf(txpacket,"hello %d, Rssi : %d",txNumber,Rssi);
+
       Serial.printf("\r\nsending packet \"%s\" , length %d\r\n",txpacket, strlen(txpacket));
       Radio.Send( (uint8_t *)txpacket, strlen(txpacket) );
       state=LOWPOWER;
-      drawBars(abs(Rssi));
+
+      //Hopefully this works
+      drawCircles(scaleSignal(demod(Rssi), 117));
+
       break;
     case STATE_RX:
       Serial.println("into RX mode");
@@ -117,8 +126,74 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     rxpacket[size]='\0';
     Radio.Sleep( );
 
-    Serial.printf("\r\nreceived packet \"%s\" with Rssi %d , length %d\r\n",rxpacket,Rssi,rxSize);
+    // Hoping this will work too. Should just give packet time data for us to test and create distance vs time approximations
+    int16_t receiveTime = timeReturn();
+    Serial.printf("\r\nreceived packet \"%s\" with Rssi %d , length %d , packet time %d\r\n",rxpacket,Rssi,rxSize, receiveTime);
     Serial.println("wait to send next packet");
 
     state=STATE_TX;
 }
+
+/*I'm using the absolute value of the dbm because at -100 dbm it will
+be converted to approximately 10MW and -5 dbm will be 3mW. IMO nice because
+a farther distance is just a bigger number.*/
+int16_t demod(int16_t rssi)
+{
+  uint16_t dist = ceil((pow(10, (abs(rssi)/10))));
+ // Converts signal strenght from dBm but below a certain margin will just put it to 0 ie right beside each other
+
+  return dist;
+}
+
+//Since our maximum value was around -100 dbm, I will put the scale range to a bit above 10MW
+int16_t scaleSignal(int16_t dist, int8_t range)
+{
+  //dist will be the value obtained from demod
+  //range will be the input range for the different UI display types
+  //ie for drawCircles its 0-117 so I will put 117 as range
+  int16_t max = 100000000;
+
+  float ratio = dist/max;
+
+  int16_t scaled = floor(ratio*range);
+
+  return scaled;
+}
+
+//Returns the time it's been since last this function ran
+int16_t timeReturn(void)
+{
+  uint8_t tgl = 0;
+  uint16_t newTime = micros();
+  uint16_t oldTime;
+
+  if(tgl != 0)
+  {
+    int16_t interval = newTime - oldTime;
+
+    return interval;
+  }
+  else
+  {
+    //literally only exists so it has to run more than once before functioning
+    tgl = 1;
+  }
+
+  oldTime = newTime;
+}
+
+int16_t scaleTime(int16_t time, int16_t range)
+{
+  int16_t maxTime = 100; //placeholder that assumes farthest distance is 100us travel time
+  int16_t ratio = (time-1000000 /*1 second delay*/)/maxTime;
+
+  // range will be maximum input for draw functions
+  int16_t dist = (ratio*range);
+}
+
+
+
+
+
+
+

@@ -2,6 +2,7 @@
 #include "stdbool.h"
 #include <time.h>
 #include <stdio.h>
+#include <math.h>
 
 typedef struct Panel {
   int x;

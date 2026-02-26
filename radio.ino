@@ -31,8 +31,6 @@ void OnTxDone( void );
 void OnTxTimeout( void );
 void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
 
-int demod(int16_t rssi);
-int scaleSignal(int dist, int range);
 int timeReturn(void);
 int scaleTime(int time, int range);
 
@@ -88,9 +86,6 @@ void loopRadio()
       Radio.Send( (uint8_t *)txpacket, strlen(txpacket) );
       state=LOWPOWER;
 
-      //Hopefully this works
-      drawCircles(scaleSignal(demod(Rssi), 117));
-
       break;
     case STATE_RX:
       Serial.println("into RX mode");
@@ -125,40 +120,15 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     memcpy(rxpacket, payload, size );
     rxpacket[size]='\0';
     Radio.Sleep( );
+    *rssiptr = Rssi;
+    *tglptr = 1;
 
-    // Hoping this will work too. Should just give packet time data for us to test and create distance vs time approximations
-    int receiveTime = timeReturn();
-    Serial.printf("\r\nreceived packet \"%s\" with Rssi %d , length %d , packet time %d\r\n",rxpacket,Rssi,rxSize, receiveTime);
+    Serial.printf("\r\nreceived packet \"%s\" with Rssi %d , length %d\r\n",rxpacket,Rssi,rxSize);
     Serial.println("wait to send next packet");
 
     state=STATE_TX;
 }
 
-/*I'm using the absolute value of the dbm because at -100 dbm it will
-be converted to approximately 10MW and -5 dbm will be 3mW. IMO nice because
-a farther distance is just a bigger number.*/
-int demod(int16_t rssi)
-{
-  int dist = ceil((pow(10, (abs(rssi)/10))));
- // Converts signal strenght from dBm but below a certain margin will just put it to 0 ie right beside each other
-
-  return dist;
-}
-
-//Since our maximum value was around -100 dbm, I will put the scale range to a bit above 10MW
-int scaleSignal(int dist, int range)
-{
-  //dist will be the value obtained from demod
-  //range will be the input range for the different UI display types
-  //ie for drawCircles its 0-117 so I will put 117 as range
-  int max = 100000000;
-
-  float ratio = dist/max;
-
-  int scaled = floor(ratio*range);
-
-  return scaled;
-}
 
 //Returns the time it's been since last this function ran
 int timeReturn(void)

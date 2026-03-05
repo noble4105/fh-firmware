@@ -45,6 +45,7 @@ int16_t txNumber;
 States_t state;
 bool sleepMode = false;
 int16_t Rssi,rxSize;
+int16_t RXacc, RXset; // timeout variables to not get stuck in receive mode
 
 
 void setupRadio() {
@@ -94,6 +95,12 @@ void loopRadio()
       break;
     case LOWPOWER:
       Radio.IrqProcess( );
+      RXacc = millis();
+      if((RXacc - RXset) > *timeoutptr)
+      {
+        Serial.printf("switching to pinging... timeout was %i", *timeoutptr);
+        state=STATE_TX;
+      }
       break;
     default:
       break;
@@ -103,6 +110,7 @@ void loopRadio()
 void OnTxDone( void )
 {
   Serial.print("TX done......");
+  RXset = millis();
   state=STATE_RX;
 }
 

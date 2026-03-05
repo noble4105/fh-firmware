@@ -97,6 +97,6 @@ int getValue() {
 
 int fakeVal(void)
 {
-  int fake = 0 + rand()%(118);
+  int fake = rand()%(118);
   return fake;
 }

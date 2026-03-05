@@ -26,6 +26,8 @@ int16_t mainrssi; // Variable and pointer for pulling signal strength from pingp
 int16_t* rssiptr = &mainrssi;
 int16_t tgl = 0; //Variable and pointer for only printing and pulling info once per pingpong cycle
 int16_t* tglptr = &tgl;
+int16_t timeout = 3000 + rand()%5001;
+int16_t* timeoutptr = &timeout;
 
 int avgArray[avgsize];
 

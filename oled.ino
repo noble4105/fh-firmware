@@ -75,4 +75,13 @@ void drawCircles(int val)
   delay(800);
 }
 
+void noDevices(void)
+{
+  display.clear();
+  display.drawString(8, 74, "devices!");
+  display.drawString(15, 64, "other");
+  display.drawString(25, 54, "No");
+  display.display();
+}
+
 

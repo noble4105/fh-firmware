@@ -21,7 +21,7 @@ typedef struct Panel {
 
 const Panel labelPanel = {0, 110, 18, 64};
 
-const int avgsize = 10; //Array size for averaging signal strength data
+const int avgsize = 6; //Array size for averaging signal strength data
 int16_t mainrssi; // Variable and pointer for pulling signal strength from pingpong
 int16_t* rssiptr = &mainrssi;
 int16_t tgl = 0; //Variable and pointer for only printing and pulling info once per pingpong cycle
@@ -51,7 +51,8 @@ void loop() {
 
     int finalAverage = findAvg(avgArray); // Compute latest average signal strength
 
-    int scaled = scaleSignal(finalAverage, 117); // Scale average to usable value
+    int scaled = scaleSignal(demodded, 117); // Scale average to usable value
+
 
     for(int i = 0; i < avgsize; i++)
     {

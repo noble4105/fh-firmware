@@ -4,7 +4,7 @@ be converted to approximately 10MW and -5 dbm will be 3mW. IMO nice because
 a farther distance is just a bigger number.*/
 double demod(int16_t rssi)
 {
-  double dist = (pow(10, (abs(rssi)/10.0)))/100000; // 800 beside, across dcc like 300k
+  double dist = (pow(10, (abs(rssi)*0.1)))*0.000001; // 800 beside, across dcc like 300k
  // Converts signal strenght from dBm but below a certain margin will just put it to 0 ie right beside each other
   if(dist > 10000)
   {
@@ -61,10 +61,8 @@ int findAvg(int* arr)
 void arrStore(int item)
 {
   int tempArr[avgsize];
-  for(int i = 0; i < avgsize; i++)
-  {
-    tempArr[i] = avgArray[i];
-  }
+  
+  memcpy(tempArr, avgArray, sizeof(avgArray));
 
   for(int i = 0; i < avgsize-1; i++)
   {

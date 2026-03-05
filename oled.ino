@@ -68,10 +68,20 @@ void drawUI(int val) {
 
 void drawCircles(int val)
 {
+  // Input range is around 0-117
   display.clear();
   display.drawCircle( 7, (7+val), 5);
   display.display();
   delay(800);
+}
+
+void noDevices(void)
+{
+  display.clear();
+  display.drawString(8, 74, "devices!");
+  display.drawString(15, 64, "other");
+  display.drawString(25, 54, "No");
+  display.display();
 }
 
 

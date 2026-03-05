@@ -31,6 +31,9 @@ void OnTxDone( void );
 void OnTxTimeout( void );
 void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
 
+int timeReturn(void);
+int scaleTime(int time, int range);
+
 typedef enum
 {
     LOWPOWER,
@@ -44,7 +47,7 @@ bool sleepMode = false;
 int16_t Rssi,rxSize;
 
 
-void setup() {
+void setupRadio() {
     Serial.begin(115200);
     Mcu.begin(HELTEC_BOARD,SLOW_CLK_TPYE);
     txNumber=0;
@@ -70,7 +73,7 @@ void setup() {
 
 
 
-void loop()
+void loopRadio()
 {
   switch(state)
   {
@@ -78,9 +81,11 @@ void loop()
       delay(1000);
       txNumber++;
       sprintf(txpacket,"hello %d, Rssi : %d",txNumber,Rssi);
+
       Serial.printf("\r\nsending packet \"%s\" , length %d\r\n",txpacket, strlen(txpacket));
       Radio.Send( (uint8_t *)txpacket, strlen(txpacket) );
       state=LOWPOWER;
+
       break;
     case STATE_RX:
       Serial.println("into RX mode");
@@ -115,9 +120,50 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     memcpy(rxpacket, payload, size );
     rxpacket[size]='\0';
     Radio.Sleep( );
+    *rssiptr = Rssi;
+    *tglptr = 1;
 
     Serial.printf("\r\nreceived packet \"%s\" with Rssi %d , length %d\r\n",rxpacket,Rssi,rxSize);
     Serial.println("wait to send next packet");
 
     state=STATE_TX;
 }
+
+
+//Returns the time it's been since last this function ran
+int timeReturn(void)
+{
+  uint8_t tgl = 0;
+  int newTime = micros();
+  int oldTime;
+
+  if(tgl != 0)
+  {
+    int interval = newTime - oldTime;
+
+    return interval;
+  }
+  else
+  {
+    //literally only exists so it has to run more than once before functioning
+    tgl = 1;
+  }
+
+  oldTime = newTime;
+}
+
+int scaleTime(int time, int range)
+{
+  int maxTime = 100; //placeholder that assumes farthest distance is 100us travel time
+  int ratio = (time-1000000 /*1 second delay*/)/maxTime;
+
+  // range will be maximum input for draw functions
+  int dist = (ratio*range);
+}
+
+
+
+
+
+
+

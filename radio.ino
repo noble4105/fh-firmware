@@ -9,7 +9,7 @@
                                                               //  1: 250 kHz,
                                                               //  2: 500 kHz,
                                                               //  3: Reserved]
-#define LORA_SPREADING_FACTOR                       12         // [SF7..SF12]
+#define LORA_SPREADING_FACTOR                       9        // [SF7..SF12]
 #define LORA_CODINGRATE                             1         // [1: 4/5,
                                                               //  2: 4/6,
                                                               //  3: 4/7,
@@ -76,7 +76,7 @@ void loopRadio()
   switch(state)
   {
     case STATE_TX:
-      delay(1000);
+      delay(500);
       txNumber++;
       sprintf(txpacket,"hello %d, Rssi : %d",txNumber,Rssi);
 

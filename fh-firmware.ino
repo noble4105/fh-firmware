@@ -28,11 +28,11 @@ int16_t* rssiptr = &mainrssi;
 int16_t tgl = 0; //Variable and pointer for only printing and pulling info once per pingpong cycle
 int16_t* tglptr = &tgl;
 
-int16_t timeout = 3000 + rand()%5001;
+int16_t timeout;
 int16_t* timeoutptr = &timeout;
 
 const int dBMax = -20; // Globals for converting rssi to distance
-const int dBMin = -105;
+const int dBMin = -120;
 int dBSpan;
 const int meterRange = 15000;
 float powerForRange;
@@ -42,15 +42,16 @@ int avgArray[avgsize]; // array for average of distance values
 void setup() {
   VextON();
   delay(100);
-  srand(time(0));
   initDisplay();
   setupRadio();
   initScaling();
+  srand(time(0));
 }
 
 void loop() {
   int currentTime = millis();
   int receivedTime; 
+  timeout = 3000 + rand()%5001;
 
   loopRadio();
 
@@ -58,11 +59,11 @@ void loop() {
   {
     //int demodded = round(demod(mainrssi));REPLACED BY NICKS FUNCTION // Interpret signal strength from pingpong
 
-    int demodded = round(dBToMeters(mainrssi));
-
-    arrStore(demodded); // Shift newest demodded value into the averaging array
+    arrStore(mainrssi); // Shift newest demodded value into the averaging array
 
     int finalAverage = findAvg(avgArray); // Compute latest average signal strength
+
+    int demodded = round(dBToMeters(finalAverage));
 
     int scaled = scaleSignal(demodded, 115); // Scale average to usable value
 
@@ -73,7 +74,7 @@ void loop() {
     }
 
     //Print numbers for testing purposes
-    Serial.printf("\nrssi returned is %i, demodded %i, averaged %i, scaled %i\n", mainrssi, demodded, finalAverage, scaled);
+    Serial.printf("\nrssi returned is %i, averaged rssi %i, meter conversion %i, scaled %i\n", mainrssi, finalAverage, demodded, scaled);
 
     drawCircles(scaled); //Display on screen!!!
 
@@ -82,7 +83,7 @@ void loop() {
     tgl = 0; // Reset toggle so this only happens when new data is pulled
   }
 
-  if((currentTime - receivedTime) > 16000 && tgl != 2)
+  if((currentTime - receivedTime) > 10000 && tgl != 2)
   {
     Serial.printf("\nTime diff is %i", (currentTime-receivedTime));
     noDevices();

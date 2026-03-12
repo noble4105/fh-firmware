@@ -2,6 +2,9 @@
 /*I'm using the absolute value of the dbm because at -100 dbm it will
 be converted to approximately 10MW and -5 dbm will be 3mW. IMO nice because
 a farther distance is just a bigger number.*/
+
+const float scaleMax = 10000.0;
+
 double demod(int16_t rssi)
 {
   double dist = (pow(10, (abs(rssi)*0.1)))*0.000001; // 800 beside, across dcc like 300k
@@ -12,7 +15,6 @@ double demod(int16_t rssi)
     Serial.printf("\n THE AVERAGE WAS RETURNED AS %f", averagedDist);
 
     return averagedDist;
-
   }
   else
   {
@@ -28,9 +30,7 @@ int scaleSignal(int dist, int range)
   //dist will be the value obtained from demod
   //range will be the input range for the different UI display types
   //ie for drawCircles its 0-115 so I will put 115 as range
-  float max = 10000.0;
-
-  float ratio = dist/max;
+  float ratio = dist/scaleMax;
 
   int scaled = round(ratio*range);
 
@@ -83,7 +83,17 @@ double dBToMeters(double dB)
   if (dB > dBMax) dB = dBMax;
   if (dB < dBMin) dB = dBMin;
 
-  return pow(10.0, 4.0 * (dBMax - dB) / dBSpan);
+  double returnval = pow(10.0, 4.0 * (dBMax - dB) / dBSpan);
+
+  if(returnval > scaleMax)
+  {
+    returnval = findAvg(avgArray)*1.0;
+
+    Serial.printf("THE AVERAGE WAS RETURNED AS %0.3f", returnval);
+    return returnval;
+  }
+
+  return returnval;
 }
 
 

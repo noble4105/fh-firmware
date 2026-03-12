@@ -78,7 +78,7 @@ void drawCircles(int val)
 void noDevices(void)
 {
   display.clear();
-  display.drawString(8, 74, "my bruh");
+  display.drawString(16, 74, "my bruh");
   display.drawString(15, 64, "toast");
   display.drawString(25, 54, "You're");
   display.display();

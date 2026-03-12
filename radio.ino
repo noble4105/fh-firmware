@@ -3,13 +3,13 @@
 
 #define RF_FREQUENCY                                915000000 // Hz
 
-#define TX_OUTPUT_POWER                             5        // dBm
+#define TX_OUTPUT_POWER                             12        // dBm
 
 #define LORA_BANDWIDTH                              0         // [0: 125 kHz,
                                                               //  1: 250 kHz,
                                                               //  2: 500 kHz,
                                                               //  3: Reserved]
-#define LORA_SPREADING_FACTOR                       7         // [SF7..SF12]
+#define LORA_SPREADING_FACTOR                       12         // [SF7..SF12]
 #define LORA_CODINGRATE                             1         // [1: 4/5,
                                                               //  2: 4/6,
                                                               //  3: 4/7,
@@ -31,9 +31,6 @@ void OnTxDone( void );
 void OnTxTimeout( void );
 void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
 
-int timeReturn(void);
-int scaleTime(int time, int range);
-
 typedef enum
 {
     LOWPOWER,
@@ -45,6 +42,7 @@ int16_t txNumber;
 States_t state;
 bool sleepMode = false;
 int16_t Rssi,rxSize;
+int16_t RXacc, RXset; // timeout variables to not get stuck in receive mode
 
 
 void setupRadio() {
@@ -94,6 +92,12 @@ void loopRadio()
       break;
     case LOWPOWER:
       Radio.IrqProcess( );
+      RXacc = millis();
+      if((RXacc - RXset) > *timeoutptr)
+      {
+        Serial.printf("switching to pinging... timeout was %i", *timeoutptr);
+        state=STATE_TX;
+      }
       break;
     default:
       break;
@@ -103,6 +107,7 @@ void loopRadio()
 void OnTxDone( void )
 {
   Serial.print("TX done......");
+  RXset = millis();
   state=STATE_RX;
 }
 
@@ -128,42 +133,3 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 
     state=STATE_TX;
 }
-
-
-//Returns the time it's been since last this function ran
-int timeReturn(void)
-{
-  uint8_t tgl = 0;
-  int newTime = micros();
-  int oldTime;
-
-  if(tgl != 0)
-  {
-    int interval = newTime - oldTime;
-
-    return interval;
-  }
-  else
-  {
-    //literally only exists so it has to run more than once before functioning
-    tgl = 1;
-  }
-
-  oldTime = newTime;
-}
-
-int scaleTime(int time, int range)
-{
-  int maxTime = 100; //placeholder that assumes farthest distance is 100us travel time
-  int ratio = (time-1000000 /*1 second delay*/)/maxTime;
-
-  // range will be maximum input for draw functions
-  int dist = (ratio*range);
-}
-
-
-
-
-
-
-

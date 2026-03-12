@@ -27,7 +27,7 @@ int scaleSignal(int dist, int range)
 {
   //dist will be the value obtained from demod
   //range will be the input range for the different UI display types
-  //ie for drawCircles its 0-117 so I will put 117 as range
+  //ie for drawCircles its 0-115 so I will put 115 as range
   float max = 10000.0;
 
   float ratio = dist/max;
@@ -72,31 +72,19 @@ void arrStore(int item)
   avgArray[0] = item;
 }
 
-// testing variables
-int counter = 0;
-int reversed = false;
-//
-
-//Testing functions \/
-int getValue() {
-  if ((counter < 100) && !reversed) {
-    counter++;
-  }
-  else if ((counter > 0) && reversed) {
-    counter--;
-  }
-
-  if (counter == 100) {
-    reversed = true;
-  } else if (counter == 0) {
-    reversed = false;
-  }
-
-  return counter;
-}
-
-int fakeVal(void)
+void initScaling() 
 {
-  int fake = rand()%(118);
-  return fake;
+  dBSpan = abs(dBMin - dBMax);
+  powerForRange = log10(meterRange);
 }
+
+double dBToMeters(double dB)
+{
+  if (dB > dBMax) dB = dBMax;
+  if (dB < dBMin) dB = dBMin;
+
+  return pow(10.0, 4.0 * (dBMax - dB) / dBSpan);
+}
+
+
+

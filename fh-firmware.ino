@@ -22,14 +22,22 @@ typedef struct Panel {
 const Panel labelPanel = {0, 110, 18, 64};
 
 const int avgsize = 6; //Array size for averaging signal strength data
+
 int16_t mainrssi; // Variable and pointer for pulling signal strength from pingpong
 int16_t* rssiptr = &mainrssi;
 int16_t tgl = 0; //Variable and pointer for only printing and pulling info once per pingpong cycle
 int16_t* tglptr = &tgl;
+
 int16_t timeout = 3000 + rand()%5001;
 int16_t* timeoutptr = &timeout;
 
-int avgArray[avgsize];
+const int dBMax = -20; // Globals for converting rssi to distance
+const int dBMin = -105;
+int dBSpan;
+const int meterRange = 15000;
+float powerForRange;
+
+int avgArray[avgsize]; // array for average of distance values
 
 void setup() {
   VextON();
@@ -37,23 +45,26 @@ void setup() {
   srand(time(0));
   initDisplay();
   setupRadio();
+  initScaling();
 }
 
 void loop() {
- // int currentTime = millis();
- // int receivedTime; for timeout that isnt working
+  int currentTime = millis();
+  int receivedTime; 
 
   loopRadio();
 
   if(tgl == 1)
   {
-    int demodded = round(demod(mainrssi)); // Interpret signal strength from pingpong
+    //int demodded = round(demod(mainrssi));REPLACED BY NICKS FUNCTION // Interpret signal strength from pingpong
+
+    int demodded = round(dBToMeters(mainrssi));
 
     arrStore(demodded); // Shift newest demodded value into the averaging array
 
     int finalAverage = findAvg(avgArray); // Compute latest average signal strength
 
-    int scaled = scaleSignal(demodded, 117); // Scale average to usable value
+    int scaled = scaleSignal(demodded, 115); // Scale average to usable value
 
 
     for(int i = 0; i < avgsize; i++)
@@ -66,15 +77,15 @@ void loop() {
 
     drawCircles(scaled); //Display on screen!!!
 
-    //receivedTime = millis(); for timeout that doenst work
+    receivedTime = millis(); 
 
     tgl = 0; // Reset toggle so this only happens when new data is pulled
   }
-/* this did work to be a timeout
-  if((currentTime - receivedTime) > 20000 && tgl != 2)
+
+  if((currentTime - receivedTime) > 16000 && tgl != 2)
   {
     Serial.printf("\nTime diff is %i", (currentTime-receivedTime));
     noDevices();
     tgl = 2;
-  }*/
+  }
 }

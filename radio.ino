@@ -31,9 +31,6 @@ void OnTxDone( void );
 void OnTxTimeout( void );
 void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
 
-int timeReturn(void);
-int scaleTime(int time, int range);
-
 typedef enum
 {
     LOWPOWER,
@@ -136,42 +133,3 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 
     state=STATE_TX;
 }
-
-
-//Returns the time it's been since last this function ran
-int timeReturn(void)
-{
-  uint8_t tgl = 0;
-  int newTime = micros();
-  int oldTime;
-
-  if(tgl != 0)
-  {
-    int interval = newTime - oldTime;
-
-    return interval;
-  }
-  else
-  {
-    //literally only exists so it has to run more than once before functioning
-    tgl = 1;
-  }
-
-  oldTime = newTime;
-}
-
-int scaleTime(int time, int range)
-{
-  int maxTime = 100; //placeholder that assumes farthest distance is 100us travel time
-  int ratio = (time-1000000 /*1 second delay*/)/maxTime;
-
-  // range will be maximum input for draw functions
-  int dist = (ratio*range);
-}
-
-
-
-
-
-
-

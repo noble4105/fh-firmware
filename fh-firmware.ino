@@ -11,6 +11,7 @@ int findAvg(int* arr);
 int getValue();
 int fakeVal(void);
 void arrStore(int item);
+void frequencyHarmonize();
 
 typedef struct Panel {
   int x;
@@ -39,6 +40,9 @@ float powerForRange;
 
 int avgArray[avgsize]; // array for average of distance values
 
+bool lowpowermode = true;
+int displayState = 0;
+
 void setup() {
   VextON();
   delay(100);
@@ -49,6 +53,16 @@ void setup() {
 }
 
 void loop() {
+  listenForButton();
+
+  if(!lowpowermode)
+  {
+    frequencyHarmonize();
+  }
+}
+
+void frequencyHarmonize()
+{
   int currentTime = millis();
   int receivedTime; 
   timeout = 3000 + rand()%5001;
@@ -76,7 +90,7 @@ void loop() {
     //Print numbers for testing purposes
     Serial.printf("\nrssi returned is %i, averaged rssi %i, meter conversion %i, scaled %i\n", mainrssi, finalAverage, demodded, scaled);
 
-    drawCircles(scaled); //Display on screen!!!
+    cycleDisplay(displayState, scaled); //Display on screen!!!
 
     receivedTime = millis(); 
 

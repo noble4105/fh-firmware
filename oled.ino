@@ -7,6 +7,8 @@ const int BAR_WIDTH = 64;
 const int BAR_BUFFER = 2;
 const int STEP = BAR_BUFFER + BAR_HEIGHT;
 
+const int displayStyleCount = 2; // Used as modulus factor in cycling displays
+
 void VextON(void) {
   pinMode(Vext,OUTPUT);
   digitalWrite(Vext, LOW);
@@ -82,6 +84,26 @@ void noDevices(void)
   display.drawString(15, 64, "toast");
   display.drawString(25, 54, "You're");
   display.display();
+}
+
+//the display state value gets changed in the in-out.ino
+//whenever a short button press is detected. The 
+// displayStyleCount is defined at the top,
+// so we can change it when we overhaul display
+void cycleDisplay(int displayState, int scaledValue)
+{
+  int state = displayState % displayStyleCount;
+
+  switch(state)
+  {
+    case 0:
+    drawCircles(scaledValue);
+    break;
+
+    case 1:
+    drawUI(scaledValue);
+    break;
+  }
 }
 
 

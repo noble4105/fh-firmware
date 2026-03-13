@@ -52,11 +52,11 @@ void listenForButton()
 
     pressedTime = currentTime - relativeTime; //Calculates how long the button was pressed for
 
-    if(pressedTime < 5000) // Long press is 5 seconds, so if less than 5 seconds, short press
-    {
+    if(pressedTime < 5000 && pressedTime > 100) // Long press is 5 seconds, so if less than 5 seconds, short press
+    {                                 // >100 to do nothing for button bounce
       shortpress();
     }
-    else 
+    else if(pressedTime > 5000)
     {
       longpress();
     }

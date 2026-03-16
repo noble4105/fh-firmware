@@ -93,9 +93,9 @@ void loopRadio()
     case LOWPOWER:
       Radio.IrqProcess( );
       RXacc = millis();
-      if((RXacc - RXset) > *timeoutptr)
+      if((RXacc - RXset) > timeout)
       {
-        Serial.printf("switching to pinging... timeout was %i", *timeoutptr);
+        Serial.printf("switching to pinging... timeout was %i", timeout);
         state=STATE_TX;
       }
       break;
@@ -125,8 +125,8 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     memcpy(rxpacket, payload, size );
     rxpacket[size]='\0';
     Radio.Sleep( );
-    *rssiptr = Rssi;
-    *tglptr = 1;
+    mainrssi = Rssi;
+    tgl = 1;
 
     Serial.printf("\r\nreceived packet \"%s\" with Rssi %d , length %d\r\n",rxpacket,Rssi,rxSize);
     Serial.println("wait to send next packet");

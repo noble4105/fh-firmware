@@ -38,6 +38,7 @@ void longpress()
   digitalWrite(ledpin, HIGH);
   setupRadio();
   initDisplay();
+  tgl = 0;
  }
 }
 

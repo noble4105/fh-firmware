@@ -44,16 +44,16 @@ bool lowpowermode = true;
 int displayState = 0;
 
 void setup() {
-  VextON();
-  delay(100);
   initDisplay();
   setupRadio();
   initScaling();
   srand(time(0));
+  pinSetup();
 }
 
 void loop() {
-  listenForButton();
+  listenForButton(); // my goat
+
 
   if(!lowpowermode)
   {

@@ -20,6 +20,8 @@ void VextOFF(void) {
 }
 
 void initDisplay() {
+  VextON();
+  delay(100);
   display.init();
   display.clear();
   display.display();
@@ -106,4 +108,11 @@ void cycleDisplay(int displayState, int scaledValue)
   }
 }
 
+void shutdownDisplay()
+{
+  display.clear();
+  display.display();
+  VextOFF();
+  delay(100);
+}
 

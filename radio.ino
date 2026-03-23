@@ -31,15 +31,7 @@ void OnTxDone( void );
 void OnTxTimeout( void );
 void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
 
-typedef enum
-{
-    LOWPOWER,
-    STATE_RX,
-    STATE_TX
-}States_t;
-
 int16_t txNumber;
-States_t state;
 bool sleepMode = false;
 int16_t Rssi,rxSize;
 int16_t RXacc, RXset; // timeout variables to not get stuck in receive mode

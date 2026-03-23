@@ -92,7 +92,7 @@ void noDevices(void)
 //whenever a short button press is detected. The 
 // displayStyleCount is defined at the top,
 // so we can change it when we overhaul display
-void cycleDisplay(int displayState, int scaledValue)
+void cycleDisplay(uint16_t displayState, int scaledValue)
 {
   int state = displayState % displayStyleCount;
 

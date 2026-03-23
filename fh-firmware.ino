@@ -26,6 +26,7 @@ const int avgsize = 6; //Array size for averaging signal strength data
 
 int16_t mainrssi; // Variable for pulling signal strength from pingpong
 int16_t tgl = 0; //Variable for only printing and pulling info once per pingpong cycle
+int scaled;
 
 
 int16_t timeout;
@@ -40,7 +41,17 @@ float powerForRange;
 int avgArray[avgsize]; // array for average of distance values
 
 bool lowpowermode = true;
-int displayState = 0;
+uint16_t displayState = 0;
+long relativeTime, currentTime, pressedTime;
+bool waitflag, pushflag = false;
+
+typedef enum
+{
+    LOWPOWER,
+    STATE_RX,
+    STATE_TX
+}States_t;
+States_t state;
 
 void setup() {
   initDisplay();
@@ -50,11 +61,13 @@ void setup() {
   pinSetup();
 }
 
-void loop() {
-  listenForButton(); // my goat
+void loop() {  
+  if(waitflag)
+  {
+    listenForButton();
+  }
 
-
-  if(!lowpowermode)
+  if(!lowpowermode && !waitflag)
   {
     frequencyHarmonize();
   }
@@ -77,7 +90,7 @@ void frequencyHarmonize()
 
     int demodded = round(dBToMeters(finalAverage));
 
-    int scaled = scaleSignal(demodded, 115); // Scale average to usable value
+    scaled = scaleSignal(demodded, 115); // Scale average to usable value
 
 
     for(int i = 0; i < avgsize; i++)

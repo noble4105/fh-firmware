@@ -1,9 +1,80 @@
 /*New ino file for mapping button inputs and outputting for LEDs*/
 #include "Arduino.h"
 
+
 const int buttonpin = 46;
 const int ledpin = 48;
-int res = 0;
+bool res = true;
+
+void IRAM_ATTR buttonPush() 
+{
+  if(digitalRead(buttonpin) == LOW)
+  {
+    pushflag = true;
+    waitflag = true;
+  }
+  else
+  {
+    res = true;
+    pushflag = false;
+  }
+}
+
+/*
+void buttonISR() // This doesnt work how i want it to rn
+{
+  if(res)
+  {
+    if(pushflag)
+    {
+      pushTime = millis();
+      pushflag = false;
+      Serial.printf("press detected, press time is %i, timeout is %i\n", pushTime, buttonTimeout);
+    }
+    
+    if(releaseflag)
+    {      
+      releaseTime = millis();
+      releaseflag = false;
+      Serial.printf("release detected, releasetime is %i, timeout is %i \n", releaseTime, buttonTimeout);
+      diffTime = releaseTime - pushTime;
+
+      if(diffTime < 2000)
+      {
+        shortpress();
+        res = false;
+      }
+      else
+      {
+        longpress();
+        res = false;
+      }
+    }
+
+    if(buttonTimeout - pushTime > 2000 && waitflag)
+    {
+      longpress();
+      res = false;
+    }
+  }
+}
+
+void ListenForButton()
+{
+  buttonTimeout = millis();
+
+  if(buttonTimeout - pushTime > 2000 && waitflag && res)
+  {
+    longpress();
+    res = false;
+  }
+  
+  if(releaseTime - pushTime <= 2000 && !waitflag && res) 
+  {
+    shortpress();
+  }
+}
+*/
 
 void pinSetup()
 {
@@ -11,6 +82,8 @@ void pinSetup()
   pinMode(buttonpin, INPUT_PULLUP); //LOW is pressed, HIGH is not pressed
 
   pinMode(ledpin, OUTPUT);
+
+  attachInterrupt(buttonpin, buttonPush, CHANGE);
 }
 
 void shortpress()
@@ -42,38 +115,40 @@ void longpress()
  }
 }
 
+
 //Logic for detecting if button press is long or not
 void listenForButton()
 {
-  long relativeTime, currentTime, pressedTime = 0;
+  relativeTime, currentTime, pressedTime = 0;
 
-  if(digitalRead(buttonpin) == HIGH) // Resets only when the button is released
-  {
-    res = 1;
-  } 
-
-  if(digitalRead(buttonpin) == LOW) //Only operates when button is detected
+  if(pushflag) //Only operates when button is detected
   {
     relativeTime = millis();
     
 
-    while(digitalRead(buttonpin) == LOW && pressedTime <= 2000)  //While button is pressed, keep count of how long it is
+    while(pushflag && pressedTime <= 2000)  //While button is pressed, keep count of how long it is
     {
       currentTime = millis();
       pressedTime = currentTime - relativeTime; //Calculates how long the button was pressed for
     }
 
-    
-
-    if(pressedTime < 2000 && pressedTime > 50 && res == 1) // Long press is 5 seconds, so if less than 5 seconds, short press
-    {                      // >100 to do nothing for button bounce
+    if(pressedTime < 2000 && res) // Long press is 5 seconds, so if less than 5 seconds, short press
+    {                      
       shortpress();
-      res = 0;
+      cycleDisplay(displayState, scaled); //Cycles dislay, scaled scaled shouldn't be changed so data doesnt change only display style
+      waitflag = false; //continue FH
+      res = false; // stops it from detecting multiple button presses from just one
+      state = STATE_RX;
+
+      Serial.print("I just shortpressed");
     }
-    else if (pressedTime >= 2000 && res == 1)
+
+    else if (pressedTime >= 2000 && res)
     {
       longpress();
-      res = 0;
+      waitflag = false; //continue FH
+      res = false; // stops from detecting multiple button presses from just one
+      Serial.print("I just longpressed");
     }
   }
 }

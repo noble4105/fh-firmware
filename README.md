@@ -8,13 +8,13 @@ other device. Due to a two month time limit, many features we would want to add 
 implemented. 
 
 The software runs on the Heltec Wifi Lora V3 esp32 microcontroller, and is written in C language. 
-As of February 21st (the time of writing this), it continues to be updated as progress continues.
-In its state at the time of writing this, it can successfully assess an approximate distance 
-between the two devices using perceived signal strength then display the distance on the built-in
-OLED display. 
+As of March 24th (updated), it can reliably assess signal strength and convert it to distance then 
+average multiple samples and display it on the OLED screen. 
 
-Some functions have been added to convert the signal strength into a non-logarithmic scale for a
-more intuitive visual on the screen as well as a time estimate between received pings. Our intent 
-is to average out the calculated distance between time and signal strength data for a more accurate
-and reliable distance. As of the time of writing this, the functions in this paragraph are untested.
-
+A single button input has been implemented with two input modes: short press to switch between
+display styles while another device is in range, and long press to turn the device on or off.
+There is a timeout function; once no devices are detected the counter begins and if the timeout
+is exceeded, the short press will no longer be operational and a message is displayed on the 
+screen to indicate no other devices found. In addition, there is a power on indicator LED, and
+the device has officially been switched to battery powered. Ideally, the display will indicate
+the battery level at all times while powered on but we have yet to implement it.

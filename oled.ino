@@ -70,17 +70,30 @@ void drawUI(int val) {
   display.display();
 }
 
-void drawCircles(int val)
+void drawCircles(int val) // needs work on string positioning
 {
   // Input range is around 0-117
   display.clear();
-  display.drawCircle( 7, (7+val), 5);
+  display.drawString(5, 110, "You");
+  display.drawLine(30, 5, 30, 123);
   display.display();
-  delay(800);
+  
+  if(val > 13)
+  {
+    display.drawString(5, (100-val), "Them");
+  }
+  else
+  {
+    display.drawString(5, 100, "Them");
+  }
+  display.fillCircle( 30, (110-val), 5);
+  display.display();
+  delay(50);
 }
 
 void noDevices(void)
 {
+ // toastState = true; // COMMENT OUT THIS LINE IF YOU ARE SOLO TESTING
   display.clear();
   display.drawString(16, 74, "my bruh");
   display.drawString(15, 64, "toast");

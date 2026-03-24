@@ -6,16 +6,17 @@ const int buttonpin = 46;
 const int ledpin = 48;
 bool res = true;
 
-void IRAM_ATTR buttonPush() 
+void buttonPush() 
 {
   if(digitalRead(buttonpin) == LOW)
   {
     pushflag = true;
     waitflag = true;
+    res = true;
+    relativeTime = millis();
   }
   else
   {
-    res = true;
     pushflag = false;
   }
 }
@@ -91,7 +92,6 @@ void shortpress()
   if(!lowpowermode) // short press should only work if not in low power mode
   {
     displayState++; // We may need to add something for button bounce
-    Serial.print("\ndisplay cycled\n");
   }
 }
 
@@ -119,12 +119,13 @@ void longpress()
 //Logic for detecting if button press is long or not
 void listenForButton()
 {
-  relativeTime, currentTime, pressedTime = 0;
+  currentTime, pressedTime = 0;
 
-  if(pushflag) //Only operates when button is detected
+  if(waitflag) //Only operates when button is detected
   {
-    relativeTime = millis();
-    
+
+    currentTime = millis();//This exists if the button press was during a radio process. 
+                           //It can still see a short press since relative time is set during button press.
 
     while(pushflag && pressedTime <= 2000)  //While button is pressed, keep count of how long it is
     {
@@ -132,15 +133,16 @@ void listenForButton()
       pressedTime = currentTime - relativeTime; //Calculates how long the button was pressed for
     }
 
-    if(pressedTime < 2000 && res) // Long press is 5 seconds, so if less than 5 seconds, short press
-    {                      
-      shortpress();
-      cycleDisplay(displayState, scaled); //Cycles dislay, scaled scaled shouldn't be changed so data doesnt change only display style
+    if(pressedTime < 2000 && res && !lowpowermode) // Long press is 5 seconds, so if less than 5 seconds, short press
+    {              
+      if(!toastState) //Dont cycle displays if it's showing no devices found
+      {
+        shortpress();
+        cycleDisplay(displayState, scaled); //Cycles dislay, scaled scaled shouldn't be changed so data doesnt change only display style
+      }        
+
       waitflag = false; //continue FH
       res = false; // stops it from detecting multiple button presses from just one
-      state = STATE_RX;
-
-      Serial.print("I just shortpressed");
     }
 
     else if (pressedTime >= 2000 && res)
@@ -148,7 +150,6 @@ void listenForButton()
       longpress();
       waitflag = false; //continue FH
       res = false; // stops from detecting multiple button presses from just one
-      Serial.print("I just longpressed");
     }
   }
 }

@@ -43,7 +43,9 @@ int avgArray[avgsize]; // array for average of distance values
 bool lowpowermode = true;
 uint16_t displayState = 0;
 long relativeTime, currentTime, pressedTime;
-bool waitflag, pushflag = false;
+bool waitflag, pushflag, toastState = false; 
+
+
 
 typedef enum
 {
@@ -62,10 +64,7 @@ void setup() {
 }
 
 void loop() {  
-  if(waitflag)
-  {
-    listenForButton();
-  }
+  listenForButton();
 
   if(!lowpowermode && !waitflag)
   {

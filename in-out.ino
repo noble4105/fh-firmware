@@ -1,7 +1,6 @@
 /*New ino file for mapping button inputs and outputting for LEDs*/
 #include "Arduino.h"
 
-
 const int buttonpin = 46;
 const int ledpin = 48;
 bool res = true;
@@ -21,62 +20,6 @@ void buttonPush()
   }
 }
 
-/*
-void buttonISR() // This doesnt work how i want it to rn
-{
-  if(res)
-  {
-    if(pushflag)
-    {
-      pushTime = millis();
-      pushflag = false;
-      Serial.printf("press detected, press time is %i, timeout is %i\n", pushTime, buttonTimeout);
-    }
-    
-    if(releaseflag)
-    {      
-      releaseTime = millis();
-      releaseflag = false;
-      Serial.printf("release detected, releasetime is %i, timeout is %i \n", releaseTime, buttonTimeout);
-      diffTime = releaseTime - pushTime;
-
-      if(diffTime < 2000)
-      {
-        shortpress();
-        res = false;
-      }
-      else
-      {
-        longpress();
-        res = false;
-      }
-    }
-
-    if(buttonTimeout - pushTime > 2000 && waitflag)
-    {
-      longpress();
-      res = false;
-    }
-  }
-}
-
-void ListenForButton()
-{
-  buttonTimeout = millis();
-
-  if(buttonTimeout - pushTime > 2000 && waitflag && res)
-  {
-    longpress();
-    res = false;
-  }
-  
-  if(releaseTime - pushTime <= 2000 && !waitflag && res) 
-  {
-    shortpress();
-  }
-}
-*/
-
 void pinSetup()
 {
   pinMode(buttonpin, INPUT);
@@ -91,6 +34,7 @@ void shortpress()
 {
   if(!lowpowermode) // short press should only work if not in low power mode
   {
+    reset = true;
     displayState++; // We may need to add something for button bounce
   }
 }

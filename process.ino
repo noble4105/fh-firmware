@@ -5,6 +5,49 @@ a farther distance is just a bigger number.*/
 
 const float scaleMax = 10000.0;
 
+void frequencyHarmonize()
+{
+  int currentTime = millis();
+  timeout = 3000 + rand()%8001;
+
+  loopRadio();
+
+  if(tgl == 1)
+  {
+    //int demodded = round(demod(mainrssi));REPLACED BY NICKS FUNCTION // Interpret signal strength from pingpong
+
+    arrStore(mainrssi); // Shift newest demodded value into the averaging array
+
+    int finalAverage = findAvg(avgArray); // Compute latest average signal strength
+
+    int demodded = round(dBToMeters(finalAverage));
+
+    scaled = scaleSignal(demodded, 115); // Scale average to usable value
+
+
+    for(int i = 0; i < avgsize; i++)
+    {
+      Serial.printf("\nEntry %i is %i", i, avgArray[i]);
+    }
+
+    //Print numbers for testing purposes
+    Serial.printf("\nrssi returned is %i, averaged rssi %i, meter conversion %i, scaled %i\n", mainrssi, finalAverage, demodded, scaled);
+
+    cycleDisplay(displayState, scaled); //Display on screen!!!
+
+    receivedTime = millis(); 
+
+    tgl = 0; // Reset toggle so this only happens when new data is pulled
+  }
+
+  if((currentTime - receivedTime) > 10000 && tgl != 2)
+  {
+    Serial.printf("\nTime diff is %i", (currentTime-receivedTime));
+    noDevices();
+    tgl = 2;
+  }
+}
+
 double demod(int16_t rssi)
 {
   double dist = (pow(10, (abs(rssi)*0.1)))*0.000001; // 800 beside, across dcc like 300k

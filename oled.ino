@@ -73,7 +73,6 @@ void drawUI(int val) {
 void drawCircles(int val) // needs work on string positioning
 {
   // Input range is around 0-117
-  display.clear();
   display.drawString(5, 110, "You");
   display.drawLine(30, 5, 30, 123);
   display.display();
@@ -93,7 +92,7 @@ void drawCircles(int val) // needs work on string positioning
 
 void noDevices(void)
 {
- // toastState = true; // COMMENT OUT THIS LINE IF YOU ARE SOLO TESTING
+  toastState = true; // COMMENT OUT THIS LINE IF YOU ARE SOLO TESTING
   display.clear();
   display.drawString(16, 74, "my bruh");
   display.drawString(15, 64, "toast");
@@ -112,10 +111,20 @@ void cycleDisplay(uint16_t displayState, int scaledValue)
   switch(state)
   {
     case 0:
+    if(reset)
+    {
+      display.clear();
+      reset = false;
+    }
     drawCircles(scaledValue);
     break;
 
     case 1:
+    if(reset)
+    {
+      display.clear();
+      reset = false;
+    }
     drawUI(scaledValue);
     break;
   }

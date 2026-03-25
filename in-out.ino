@@ -1,5 +1,7 @@
 /*New ino file for mapping button inputs and outputting for LEDs*/
 #include "Arduino.h"
+#include <Wire.h>
+#include "heltec.h"
 
 const int buttonpin = 46;
 const int ledpin = 48;
@@ -28,6 +30,12 @@ void pinSetup()
   pinMode(ledpin, OUTPUT);
 
   attachInterrupt(buttonpin, buttonPush, CHANGE);
+
+
+/* This is the start of battery reading from example Battery_power.ino
+  analogSetClockDiv(1);
+  analogSetAttenuation(ADC_11db);
+  analogSetPinAttenuation(36,ADC_11db);*/
 }
 
 void shortpress()

@@ -3,7 +3,7 @@
 be converted to approximately 10MW and -5 dbm will be 3mW. IMO nice because
 a farther distance is just a bigger number.*/
 
-const float scaleMax = 2000.0; 
+const float scaleMax = 500.0; 
 
 double demod(int16_t rssi)
 {

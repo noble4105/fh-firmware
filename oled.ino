@@ -3,7 +3,7 @@
 static SSD1306Wire  display(0x3c, 500000, SDA_OLED, SCL_OLED, GEOMETRY_128_64, RST_OLED); // addr , freq , i2c group , resolution , rst
 
 const int BAR_HEIGHT = 10;
-const int BAR_WIDTH = 64;
+const int BAR_WIDTH = 45;
 const int BAR_BUFFER = 2;
 const int STEP = BAR_BUFFER + BAR_HEIGHT;
 
@@ -45,10 +45,10 @@ void drawBars(int val) {
 
   for (int i = 9; i>0; i--) {
     if (val > ((10-i)*10)) {
-      display.fillRect(0, vTrack, BAR_WIDTH, BAR_HEIGHT);
+      display.fillRect((64-BAR_WIDTH), vTrack, BAR_WIDTH, BAR_HEIGHT);
     }
     else {
-      display.drawRect(0, vTrack, BAR_WIDTH, BAR_HEIGHT);
+      display.drawRect((64-BAR_WIDTH), vTrack, BAR_WIDTH, BAR_HEIGHT);
     }
     vTrack -= STEP;
   }
@@ -64,9 +64,8 @@ void clearPanel(Panel panel) {
 
 void drawValString(int val) {
   clearPanel(labelPanel);
-  display.setTextAlignment(TEXT_ALIGN_CENTER);
   display.setFont(ArialMT_Plain_10);
-  display.drawString(32, 115-10/2, String(val) + "%");
+  display.drawString(40, 115-10/2, String(val) + "%");
 }
 
 void drawUI(int val) {
@@ -77,12 +76,11 @@ void drawUI(int val) {
 
 void drawCircles(int val) // needs work on string positioning
 {
-  int wordPosition = 38;
   // Input range is around 0-117
   display.clear();
   display.drawString(5, 110, "You");
   
-  display.drawString(wordPosition, (111-val), "Them");
+  display.drawString(38, (111-val), "Them");
   display.drawCircle(30, (117-val), 5);
 
   display.drawLine(30, 5, 30, (109-val)); // Draw line from top to circle radius

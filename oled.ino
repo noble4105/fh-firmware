@@ -106,7 +106,8 @@ void drawUI(int val) {
   }
 
   drawBars(adjustedVal);
-  drawValString(val);
+  drawValString(demodded); //Changed to demodded. 
+  //It will show proper meter length but the bars filling is according to scaledMax
   display.display();
 }
 

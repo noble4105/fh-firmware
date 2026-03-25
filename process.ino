@@ -1,9 +1,9 @@
-
+#include "esp_sleep.h"
 /*I'm using the absolute value of the dbm because at -100 dbm it will
 be converted to approximately 10MW and -5 dbm will be 3mW. IMO nice because
 a farther distance is just a bigger number.*/
 
-const float scaleMax = 1000.0; 
+const float scaleMax = 1000.0; // Operational range of display in meters
 
 double demod(int16_t rssi)
 {
@@ -138,5 +138,20 @@ void frequencyHarmonize() // The main function!!!
   }
 }
 
+/* It says including esp_sleep.h should make this work but it doenst!!!
+
+void sleepSetup()
+{
+  nimble_port_stop();
+  nimble_port_deinit();
+
+  esp_bluedroid_disable();
+  esp_bluedroid_deinit();
+
+  esp_bt_controller_disable();
+  esp_bt_controller_deinit();
+  esp_wifi_stop();
+}
+*/
 
 

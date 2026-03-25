@@ -1,5 +1,6 @@
 /*New ino file for mapping button inputs and outputting for LEDs*/
 #include "Arduino.h"
+#include "esp_sleep.h"
 #include <Wire.h>
 #include "heltec.h"
 
@@ -19,11 +20,6 @@ void buttonPush()
   else
   {
     pushflag = false;
-
-    if(lowpowermode)
-    {
-      //esp_light_sleep_start();
-    }
   }
 }
 
@@ -35,6 +31,8 @@ void pinSetup()
   pinMode(ledpin, OUTPUT);
 
   attachInterrupt(buttonpin, buttonPush, CHANGE);
+
+ // gpio_wakeup_enable(5, GPIO_INTR_LOW_LEVEL);
 
 
 /* This is the start of battery reading from example Battery_power.ino
@@ -50,6 +48,10 @@ void shortpress()
     reset = true;
     displayState++; // We may need to add something for button bounce
   }
+ /* else
+  {
+    esp_light_sleep_start();
+  }*/
 }
 
 //Used explicitly to switch between low power mode and operating mode
@@ -61,7 +63,7 @@ void longpress()
   digitalWrite(ledpin, LOW);
   displayState = 0; // Resets display style every time you switch to low power
   shutdownDisplay();
-  //esp_deep_sleep_start();
+ // esp_light_sleep_start();
  }
  else
  {

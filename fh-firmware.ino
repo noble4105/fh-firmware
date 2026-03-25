@@ -60,6 +60,8 @@ void setup() {
   initScaling();
   srand(time(0));
   pinSetup();
+
+ // sleepSetup();
 }
 
 void loop() {  

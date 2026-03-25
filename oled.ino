@@ -13,6 +13,8 @@ const int displayStyleCount = 2; // Used as modulus factor in cycling displays
 // X MAX IS 64 I THINK
 // Y MAX IS 128 I THINK
 
+int scaleSignal(int dist, int range);
+
 
 void VextON(void) {
   pinMode(Vext,OUTPUT);
@@ -37,9 +39,7 @@ void initDisplay() {
 }
 
 void drawBars(int val) {
-  if (val % 10 == 0) { // reset when rect state change instead otherwise jank
-    display.clear();
-  }
+  display.clear();
 
   int vTrack = 8 * STEP;
 
@@ -63,13 +63,49 @@ void clearPanel(Panel panel) {
 }
 
 void drawValString(int val) {
+  bool isKilo = false;
+  String message = "";
+  message = String(val) + "m";
+
+  if (val > 1000) {
+    double doubleValue = val / 1000.0;
+    isKilo = true;
+    message = String(doubleValue, 2) + "km";
+  }
+
   clearPanel(labelPanel);
   display.setFont(ArialMT_Plain_10);
-  display.drawString(40, 115-10/2, String(val) + "%");
+  display.drawString(38, 115-10/2, message);
 }
 
 void drawUI(int val) {
-  drawBars(val);
+  int adjustedVal = 0;
+
+  if (val > 100) {
+    adjustedVal = 0;
+  } else if (val > 90) {
+    adjustedVal = 10;
+  } else if (val > 80) {
+    adjustedVal = 20;
+  } else if (val > 70) {
+    adjustedVal = 30;
+  } else if (val > 60) {
+    adjustedVal = 40;
+  } else if (val > 50) {
+    adjustedVal = 50;
+  } else if (val > 40) {
+    adjustedVal = 60;
+  } else if (val > 30) {
+    adjustedVal = 70;
+  } else if (val > 20) {
+    adjustedVal = 80;
+  } else if (val > 10) {
+    adjustedVal = 90;
+  } else {
+    adjustedVal = 100;
+  }
+
+  drawBars(adjustedVal);
   drawValString(val);
   display.display();
 }
@@ -115,7 +151,7 @@ void cycleDisplay(uint16_t displayState, int scaledValue)
       display.clear();
       reset = false;
     }
-    drawCircles(scaledValue);
+    drawCircles(scaleSignal(scaledValue, 115));
     break;
 
     case 1:
@@ -124,7 +160,7 @@ void cycleDisplay(uint16_t displayState, int scaledValue)
       display.clear();
       reset = false;
     }
-    drawUI(scaledValue);
+    drawUI(scaleSignal(scaledValue, 100));
     break;
   }
 }

@@ -19,6 +19,11 @@ void buttonPush()
   else
   {
     pushflag = false;
+
+    if(lowpowermode)
+    {
+      //esp_light_sleep_start();
+    }
   }
 }
 
@@ -56,6 +61,7 @@ void longpress()
   digitalWrite(ledpin, LOW);
   displayState = 0; // Resets display style every time you switch to low power
   shutdownDisplay();
+  //esp_deep_sleep_start();
  }
  else
  {
@@ -90,7 +96,16 @@ void listenForButton()
       if(!toastState) //Dont cycle displays if it's showing no devices found
       {
         shortpress();
-        cycleDisplay(displayState, scaled); //Cycles dislay, scaled scaled shouldn't be changed so data doesnt change only display style
+
+        if(displayState%2 == 0)
+        {
+          cycleDisplay(displayState, scaleSignal(demodded, 115));
+        }
+        else
+        {
+          cycleDisplay(displayState, scaleSignal(demodded, 100));
+        }
+       
       }        
 
       waitflag = false; //continue FH

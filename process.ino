@@ -3,7 +3,7 @@
 be converted to approximately 10MW and -5 dbm will be 3mW. IMO nice because
 a farther distance is just a bigger number.*/
 
-const float scaleMax = 500.0; 
+const float scaleMax = 1000.0; 
 
 double demod(int16_t rssi)
 {
@@ -95,6 +95,47 @@ double dBToMeters(double dB)
 
   Serial.printf("\n dBToMeters is %f", returnval);
   return returnval;
+}
+
+
+void frequencyHarmonize() // The main function!!!
+{
+  int currentTime = millis();
+  timeout = 3000 + rand()%8001;
+
+  loopRadio();
+
+  if(tgl == 1)
+  {
+    //int demodded = round(demod(mainrssi));REPLACED BY NICKS FUNCTION // Interpret signal strength from pingpong
+
+    arrStore(mainrssi); // Shift newest demodded value into the averaging array
+
+    int finalAverage = findAvg(avgArray); // Compute latest average signal strength
+
+    demodded = round(dBToMeters(finalAverage));
+
+    for(int i = 0; i < avgsize; i++)
+    {
+      Serial.printf("\nEntry %i is %i", i, avgArray[i]);
+    }
+
+    //Print numbers for testing purposes
+    Serial.printf("\nrssi returned is %i, averaged rssi %i, meter conversion %i\n", mainrssi, finalAverage, demodded);
+
+    cycleDisplay(displayState, demodded); //Display on screen!!!
+
+    receivedTime = millis(); 
+
+    tgl = 0; // Reset toggle so this only happens when new data is pulled
+  }
+
+  if((currentTime - receivedTime) > 10000 && tgl != 2)
+  {
+    Serial.printf("\nTime diff is %i", (currentTime-receivedTime));
+    noDevices();
+    tgl = 2;
+  }
 }
 
 

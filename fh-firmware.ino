@@ -71,3 +71,48 @@ void loop() {
     frequencyHarmonize(); //moved implementation to process.ino
   }
 }
+
+
+void frequencyHarmonize() // The main function!!!
+{
+  int currentTime = millis();
+  timeout = 3000 + rand()%8001;
+
+  loopRadio();
+
+  if(tgl == 1)
+  {
+    //int demodded = round(demod(mainrssi));REPLACED BY NICKS FUNCTION // Interpret signal strength from pingpong
+
+    arrStore(mainrssi); // Shift newest demodded value into the averaging array
+
+    int finalAverage = findAvg(avgArray); // Compute latest average signal strength
+
+    int demodded = round(dBToMeters(finalAverage));
+
+    scaled = scaleSignal(demodded, 115); // Scale average to usable value
+
+
+    for(int i = 0; i < avgsize; i++)
+    {
+      Serial.printf("\nEntry %i is %i", i, avgArray[i]);
+    }
+
+    //Print numbers for testing purposes
+    Serial.printf("\nrssi returned is %i, averaged rssi %i, meter conversion %i, scaled %i\n", mainrssi, finalAverage, demodded, scaled);
+
+    cycleDisplay(displayState, scaled); //Display on screen!!!
+
+    receivedTime = millis(); 
+
+    tgl = 0; // Reset toggle so this only happens when new data is pulled
+  }
+
+  if((currentTime - receivedTime) > 10000 && tgl != 2)
+  {
+    Serial.printf("\nTime diff is %i", (currentTime-receivedTime));
+    noDevices();
+    tgl = 2;
+  }
+}
+

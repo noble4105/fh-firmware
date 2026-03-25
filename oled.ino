@@ -9,6 +9,11 @@ const int STEP = BAR_BUFFER + BAR_HEIGHT;
 
 const int displayStyleCount = 2; // Used as modulus factor in cycling displays
 
+// X = 0, Y = 0 IS AT TOP LEFT WHEN PORT IS FACING DOWN
+// X MAX IS 64 I THINK
+// Y MAX IS 128 I THINK
+
+
 void VextON(void) {
   pinMode(Vext,OUTPUT);
   digitalWrite(Vext, LOW);
@@ -72,22 +77,18 @@ void drawUI(int val) {
 
 void drawCircles(int val) // needs work on string positioning
 {
+  int wordPosition = 38;
   // Input range is around 0-117
+  display.clear();
   display.drawString(5, 110, "You");
-  display.drawLine(30, 5, 30, 123);
-  display.display();
   
-  if(val > 13)
-  {
-    display.drawString(5, (100-val), "Them");
-  }
-  else
-  {
-    display.drawString(5, 100, "Them");
-  }
-  display.fillCircle( 30, (110-val), 5);
+  display.drawString(wordPosition, (111-val), "Them");
+  display.drawCircle(30, (117-val), 5);
+
+  display.drawLine(30, 5, 30, (109-val)); // Draw line from top to circle radius
+  display.drawLine(30, 123, 30, (124-val)); // Draw line from bottom to circle radius
+  
   display.display();
-  delay(50);
 }
 
 void noDevices(void)

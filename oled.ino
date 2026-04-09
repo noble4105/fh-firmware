@@ -3,7 +3,7 @@
 static SSD1306Wire  display(0x3c, 500000, SDA_OLED, SCL_OLED, GEOMETRY_128_64, RST_OLED); // addr , freq , i2c group , resolution , rst
 
 const int BAR_HEIGHT = 10;
-const int BAR_WIDTH = 45;
+const int BAR_WIDTH = 42;
 const int BAR_BUFFER = 2;
 const int STEP = BAR_BUFFER + BAR_HEIGHT;
 
@@ -35,7 +35,7 @@ void initDisplay() {
   display.setContrast(255);
   display.clear();
   display.display();
-  display.screenRotate(ANGLE_90_DEGREE);
+  display.screenRotate(ANGLE_270_DEGREE);
 }
 
 void drawBars(int val) {
@@ -108,6 +108,9 @@ void drawUI(int val) {
   drawBars(adjustedVal);
   drawValString(demodded); //Changed to demodded. 
   //It will show proper meter length but the bars filling is according to scaledMax
+
+  displayPercent();
+
   display.display();
 }
 
@@ -122,17 +125,35 @@ void drawCircles(int val) // needs work on string positioning
 
   display.drawLine(30, 5, 30, (109-val)); // Draw line from top to circle radius
   display.drawLine(30, 123, 30, (124-val)); // Draw line from bottom to circle radius
-  
+
+  displayPercent();
+
   display.display();
 }
 
-void noDevices(void)
+void noDevices(void) // display mode for no connection
 {
   toastState = true; // COMMENT OUT THIS LINE IF YOU ARE SOLO TESTING
   display.clear();
-  display.drawString(16, 74, "my bruh");
-  display.drawString(15, 64, "toast");
-  display.drawString(25, 54, "You're");
+  display.drawString(35, 54, "No");
+  display.drawString(25, 64, "devices");
+  display.drawString(30, 74, "found");
+  
+  displayPercent();
+
+  display.display();
+}
+
+void searchingForDevices(void) // display mode for startup
+{
+  toastState = true; // COMMENT OUT THIS LINE IF YOU ARE SOLO TESTING
+  display.clear();
+  display.drawString(20, 54, "Searching");
+  display.drawString(35, 64, "for");
+  display.drawString(25, 74, "devices");
+  
+  displayPercent();
+
   display.display();
 }
 
@@ -172,5 +193,76 @@ void shutdownDisplay()
   display.display();
   VextOFF();
   delay(100);
+}
+
+void batteryDisplay()
+{
+  static int lastVolt = 0;
+  int voltVal = batteryRead();
+
+  if(voltVal != lastVolt)
+  {
+    display.clear();
+
+    char voltString[20];
+    sprintf(voltString, "%d", voltVal);
+
+    display.drawString(16, 16, voltString);
+    display.display();
+
+    lastVolt = voltVal;
+
+    delay(500);
+  }
+}
+
+void displayPercent()
+{
+  char battval[5];
+
+  sprintf(battval, "%i", samplePercent());
+
+  display.drawString(1, 54, "Bat.");
+  display.drawString(2, 64, battval);
+  display.drawString(3, 74, "%");
+}
+
+int samplePercent()
+{
+  long current = millis();
+
+  long timeToBatt = current - battTime;
+
+  if(timeToBatt < 60000)
+  {
+    return fakePercent;
+  }
+  else if(timeToBatt < 237000)
+  {
+    return fakePercent-1;
+  }
+  else if(timeToBatt < 400000)
+  {
+    return fakePercent-2;
+  }
+  else if(timeToBatt < 650000)
+  {
+    return fakePercent-3;
+  }
+  else if(timeToBatt < 910000)
+  {
+    return fakePercent-4;
+  }
+  else if(timeToBatt < 1400000)
+  {
+    return fakePercent-5;
+  }
+  else if(timeToBatt < 1900000)
+  {
+    return fakePercent-6;
+  }
+  else{
+    return 37;
+  }
 }
 

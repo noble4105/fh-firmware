@@ -5,6 +5,7 @@
 #include "heltec.h"
 
 const int buttonpin = 46;
+const int wakeupPin = 1;
 const int ledpin = 48;
 bool res = true;
 
@@ -28,17 +29,16 @@ void pinSetup()
   pinMode(buttonpin, INPUT);
   pinMode(buttonpin, INPUT_PULLUP); //LOW is pressed, HIGH is not pressed
 
+  pinMode(wakeupPin, INPUT);
+  pinMode(wakeupPin, INPUT_PULLUP);
+
   pinMode(ledpin, OUTPUT);
 
   attachInterrupt(buttonpin, buttonPush, CHANGE);
 
- // gpio_wakeup_enable(5, GPIO_INTR_LOW_LEVEL);
+ // batterySetup();
 
-
-/* This is the start of battery reading from example Battery_power.ino
-  analogSetClockDiv(1);
-  analogSetAttenuation(ADC_11db);
-  analogSetPinAttenuation(36,ADC_11db);*/
+  esp_sleep_enable_ext0_wakeup((gpio_num_t)wakeupPin, 0);
 }
 
 void shortpress()
@@ -48,10 +48,6 @@ void shortpress()
     reset = true;
     displayState++; // We may need to add something for button bounce
   }
- /* else
-  {
-    esp_light_sleep_start();
-  }*/
 }
 
 //Used explicitly to switch between low power mode and operating mode
@@ -63,18 +59,24 @@ void longpress()
   digitalWrite(ledpin, LOW);
   displayState = 0; // Resets display style every time you switch to low power
   shutdownDisplay();
- // esp_light_sleep_start();
+
+  while(digitalRead(buttonpin) == LOW) //can't go to sleep if the wake up button is actually active
+  {}
+  Serial.print("Going to sleep..\n");
+  isSetup = false;
+  delay(100); // only for serial print
+  esp_light_sleep_start();
  }
  else
  {
   lowpowermode = false; // Operating mode
+  battTime = millis();
   digitalWrite(ledpin, HIGH);
   setupRadio();
   initDisplay();
   tgl = 0;
  }
 }
-
 
 //Logic for detecting if button press is long or not
 void listenForButton()
@@ -83,7 +85,6 @@ void listenForButton()
 
   if(waitflag) //Only operates when button is detected
   {
-
     currentTime = millis();//This exists if the button press was during a radio process. 
                            //It can still see a short press since relative time is set during button press.
 
@@ -101,13 +102,12 @@ void listenForButton()
 
         if(displayState%2 == 0)
         {
-          cycleDisplay(displayState, scaleSignal(demodded, 115));
+          cycleDisplay(displayState, demodded);
         }
         else
         {
-          cycleDisplay(displayState, scaleSignal(demodded, 100));
+          cycleDisplay(displayState, demodded);
         }
-       
       }        
 
       waitflag = false; //continue FH

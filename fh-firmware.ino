@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <math.h>
+#include "esp_sleep.h"
 
 //Prototypes so there are no oopsies
 double demod(int16_t rssi);
@@ -12,6 +13,16 @@ int getValue();
 int fakeVal(void);
 void arrStore(int item);
 void frequencyHarmonize();
+void setupForCoolKids();
+void cycleDisplay(uint16_t, int);
+void loopRadio();
+void listenForButton();
+void setupRadio();
+void initDisplay();
+void shutdownDisplay();
+void initScaling();
+void pinSetup();
+void batteryDisplay();
 
 typedef struct Panel {
   int x;
@@ -37,14 +48,16 @@ int dBSpan;
 const int meterRange = 15000;
 float powerForRange;
 
+long battTime;
+
 int avgArray[avgsize]; // array for average of distance values
 
 bool lowpowermode = true;
 uint16_t displayState = 0;
 long relativeTime, currentTime, pressedTime;
-bool waitflag, pushflag, toastState, reset = false; 
+bool waitflag, pushflag, toastState, reset, sleepStarted, isSetup = false; 
 
-
+int fakePercent =  0; // random value on startup for fake battery percentage
 
 typedef enum
 {
@@ -55,21 +68,46 @@ typedef enum
 States_t state;
 
 void setup() {
+  isSetup = false; // Take your setup function somewhere else! >:(
+  lowpowermode = true;
+  fakePercent = 95 - rand()%9;
+  
+  setupForCoolKids();
+  battTime = millis();
+  esp_light_sleep_start();
+}
+
+void loop() {  
+  if(!isSetup)
+  { //temporarily restoring no sleep mode functionality
+    isSetup = true;
+    setupForCoolKids();
+  }
+
+    listenForButton();
+
+    if(!lowpowermode && !waitflag)
+    {
+      frequencyHarmonize(); //moved implementation to process.ino
+    }
+  }
+
+void setupForCoolKids()
+{
   initDisplay();
   setupRadio();
   initScaling();
   srand(time(0));
   pinSetup();
 
- // sleepSetup();
-}
+  delay(20);
+  lowpowermode = false;
+  digitalWrite(48, HIGH); // 48 is ledpin but it's not being recognized by compiler
 
-void loop() {  
-  listenForButton();
+  Serial.print("\nReinitializing...\n");
 
-  if(!lowpowermode && !waitflag)
-  {
-    frequencyHarmonize(); //moved implementation to process.ino
-  }
+  receivedTime = millis();
+  tgl = 0; // if tgl is never reset, the timeout function doesnt work
+  searchingForDevices();
 }
 

@@ -107,8 +107,6 @@ void frequencyHarmonize() // The main function!!!
 
   if(tgl == 1)
   {
-    //int demodded = round(demod(mainrssi));REPLACED BY NICKS FUNCTION // Interpret signal strength from pingpong
-
     arrStore(mainrssi); // Shift newest demodded value into the averaging array
 
     int finalAverage = findAvg(avgArray); // Compute latest average signal strength
